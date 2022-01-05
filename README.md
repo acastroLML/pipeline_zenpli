@@ -14,6 +14,8 @@ pipe = compose.Pipeline(steps=[
 
     ])
 
+There are use of decorators to indicate if the respective process in the pipeline is a generator or a processor.
+
 ##"Step 1 - fetching datasource - parallel"    
 The first step "Step 1 - fetching datasource - parallel" uses 3 parallel proccess that can terminated in any order. This step use the function "data_to_be_processed" that is imported from 
 from basic_exploratory_analysis file.
@@ -22,6 +24,7 @@ In basic exploratory analysis there are launched the 3 parallel proccess:
 - The first one (data_scheme) verifies the data scheme and makes a description of the columns involved. 
 - The second process (imputations) find the imputation rules by means of determining what columns have missed data and if exist some kind of correlation with other column or columns to fit a model 
 to get the missing values.
+
 - The third proccess (outliers) get an deviation analysis and find the quantiles and interquartil range for each column and determines the outliers according to the following limits:
 
 lower_inner_fence = round(Q25-1.5*(IQ),2)
@@ -30,6 +33,14 @@ lower_outer_fence = round(Q25-10*(IQ),2)
 upper_outer_fence = round(Q75+10*(IQ),2)
 
 For example, if the data is out of the outer fence it is considered an extreme outlier and can be modified to the outer fence value.
+
+In the parallel processes the data is not modified with the purpose of avoid conflicts but the processes defines rules according to their respective task.
+
+- The rules resulting in each process are communicated by a JSON format that it is consolidated when the 3 processes are finished.
+
+- The info contained in that JSON or python dictionary its recovery to make the imputations and handling the outliers in the main thread of the pipeline.
+
+The next steps are sequentials and use all the scripts submitted.
 
 
 from scaling_variables import scaling
